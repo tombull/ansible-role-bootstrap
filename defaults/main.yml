@@ -1,18 +1,19 @@
 ---
 # defaults file for bootstrap
 
-# The user to use to connect to machines.
-bootstrap_user: root
+# The initial user and password to use to connect to machines.
+# initial_user: root
+# initial_password: qwe123
 
 # Installed software to support modules flagged as "preview" (i.e. mysql_db).
 # "yes", "no" or unset are valid.
 bootstrap_preview: yes
 
 # Do you want to wait for the host to be available?
-bootstrap_wait_for_host: no
+bootstrap_wait_for_host: yes
 
 # The number of seconds you want to wait during connection test before failing.
-bootstrap_timeout: 3
+bootstrap_timeout: 15
 
 # The number of retries during installation
-bootstrap_retries: 3
+bootstrap_retries: 5

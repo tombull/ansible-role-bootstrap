@@ -1,5 +1,8 @@
 ---
-# tasks file for bootstrap
+- include: manage_known_hosts.yml
+
+- include: check_login.yml
+
 - name: wait for the host
   wait_for:
     port: "{{ ansible_port | default('22') }}"

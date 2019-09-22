@@ -1,10 +1,8 @@
 ---
 - name: register package manager
-  remote_user: "{{ bootstrap_remote_user | default(omit) }}"
   become: no
   check_mode: no
   block:
-
     - name: register apk
       raw: apk --version
       register: apk
