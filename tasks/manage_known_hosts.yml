@@ -2,8 +2,9 @@
 - name: Ensure hosts are in known_hosts
   delegate_to: localhost
   auth_keys:
-    servers: "{{ (ansible_ssh_host | default(ansible_host) | default(inventory_hostname)) }}"
+    servers: "{{ (hostvars[inventory_hostname]['ansible_ssh_host'] | default(hostvars[inventory_hostname]['ansible_host']) | default(inventory_hostname)) }}"
   register: auth_keys_changed
+  run_once: true
   when: hostname_for_known_hosts_lookup is undefined
 
 - name: Notify if known_hosts was changed
