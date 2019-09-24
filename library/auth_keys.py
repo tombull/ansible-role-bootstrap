@@ -37,7 +37,7 @@ class AuthorisedKeys:
             working_file = os.path.abspath(os.path.expanduser(keys_file))
             if os.path.exists(working_file) and os.path.isfile(working_file):
 
-                with open(working_file, "rb+") as open_file:
+                with open(working_file, "r+") as open_file:
                     while True:
                         try:
                             fcntl.flock(open_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -53,7 +53,9 @@ class AuthorisedKeys:
 
                     for server, auth_key in list(servers_and_keys.items()):
                         entries_in_file = [
-                            file_line for file_line in file_lines if server.lower() in [address.lower() for address in file_line.split(" ")[0].split(",")]
+                            file_line
+                            for file_line in file_lines
+                            if server.lower() in [address.lower() for address in file_line.decode("utf_8").split(" ")[0].split(",")]
                         ]
                         incorrect_entries_in_file = [file_line for file_line in entries_in_file if file_line != auth_key]
                         if len(entries_in_file) != 1 or len(incorrect_entries_in_file) > 0:
