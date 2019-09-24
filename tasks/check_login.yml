@@ -1,13 +1,13 @@
 ---
 - name: Check if connection is possible with user ansible_user and public key
-  command: ssh -o User={{ ansible_user }} -o ConnectTimeout={{ bootstrap_timeout }} -o PreferredAuthentications=publickey -o PubkeyAuthentication=yes {{ inventory_hostname }} echo "Worked"
+  command: ssh -o User={{ ansible_user }} -o ConnectTimeout={{ bootstrap_timeout }} -o PreferredAuthentications=publickey -o PubkeyAuthentication=yes {{ (ansible_ssh_host | default(ansible_host) | default(inventory_hostname)) }} echo "Worked"
   register: bootstrap_connection_default
   delegate_to: localhost
   ignore_errors: true
   changed_when: false
 
 - name: Check if connection is possible with user initial_user and public key
-  command: ssh -o User={{ initial_user }} -o ConnectTimeout={{ bootstrap_timeout }} -o PreferredAuthentications=publickey -o PubkeyAuthentication=yes {{ inventory_hostname }} echo "Worked"
+  command: ssh -o User={{ initial_user }} -o ConnectTimeout={{ bootstrap_timeout }} -o PreferredAuthentications=publickey -o PubkeyAuthentication=yes {{ (ansible_ssh_host | default(ansible_host) | default(inventory_hostname)) }} echo "Worked"
   register: bootstrap_connection_initial_user
   delegate_to: localhost
   ignore_errors: true
@@ -17,7 +17,7 @@
     - initial_user is defined
 
 - name: Check if connection is possible with user ansible_user and password initial_password
-  command: sshpass -p {{ initial_password }} ssh -o User={{ ansible_user }} -o ConnectTimeout={{ bootstrap_timeout }} -o PreferredAuthentications=password -o PubkeyAuthentication=no {{ inventory_hostname }} echo "Worked"
+  command: sshpass -p {{ initial_password }} ssh -o User={{ ansible_user }} -o ConnectTimeout={{ bootstrap_timeout }} -o PreferredAuthentications=password -o PubkeyAuthentication=no {{ (ansible_ssh_host | default(ansible_host) | default(inventory_hostname)) }} echo "Worked"
   register: bootstrap_connection_initial_password
   delegate_to: localhost
   ignore_errors: true
@@ -29,7 +29,7 @@
     - initial_password is defined
 
 - name: Check if connection is possible with user initial_user and password initial_password
-  command: sshpass -p {{ initial_password }} ssh -o User={{ initial_user }} -o ConnectTimeout={{ bootstrap_timeout }} -o PreferredAuthentications=password -o PubkeyAuthentication=no {{ inventory_hostname }} echo "Worked"
+  command: sshpass -p {{ initial_password }} ssh -o User={{ initial_user }} -o ConnectTimeout={{ bootstrap_timeout }} -o PreferredAuthentications=password -o PubkeyAuthentication=no {{ (ansible_ssh_host | default(ansible_host) | default(inventory_hostname)) }} echo "Worked"
   register: bootstrap_connection_initial_user_and_password
   delegate_to: localhost
   ignore_errors: true
