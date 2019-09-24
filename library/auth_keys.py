@@ -51,7 +51,7 @@ class AuthorisedKeys:
                     while file_lines[-1].isspace() or not file_lines[-1]:
                         del file_lines[-1]
 
-                    for server, auth_key in servers_and_keys.iteritems():
+                    for server, auth_key in list(servers_and_keys.items()):
                         entries_in_file = [
                             file_line for file_line in file_lines if server.lower() in [address.lower() for address in file_line.split(" ")[0].split(",")]
                         ]
