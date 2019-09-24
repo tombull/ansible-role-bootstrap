@@ -27,7 +27,7 @@ class AuthorisedKeys:
 
         servers_and_keys = {}
         for server in servers_list:
-            auth_key = check_output(["ssh-keyscan", "-t", "rsa", server])
+            auth_key = check_output(["ssh-keyscan", "-t", "rsa", server]).decode("utf-8")
             servers_and_keys[server] = auth_key
 
         changed_any = False
@@ -53,9 +53,7 @@ class AuthorisedKeys:
 
                     for server, auth_key in list(servers_and_keys.items()):
                         entries_in_file = [
-                            file_line
-                            for file_line in file_lines
-                            if server.decode("utf-8").lower() in [address.lower() for address in file_line.split(" ")[0].split(",")]
+                            file_line for file_line in file_lines if server.lower() in [address.lower() for address in file_line.split(" ")[0].split(",")]
                         ]
                         incorrect_entries_in_file = [file_line for file_line in entries_in_file if file_line != auth_key]
                         if len(entries_in_file) != 1 or len(incorrect_entries_in_file) > 0:
