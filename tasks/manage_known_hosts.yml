@@ -13,7 +13,7 @@
   when: auth_keys_changed.changed
   run_once: true
 
-- name: Notify if known_hosts was changed
+- name: Pause after notify if known_hosts was changed
   pause:
     seconds: 30
   when: auth_keys_changed|changed
