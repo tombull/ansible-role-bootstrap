@@ -38,6 +38,7 @@
     name: "{{ bootstrap_packages }}"
     state: present
   register: packageresult
+  become: true
   until: packageresult is succeeded
 
 - name: install software to support stable modules
@@ -47,6 +48,7 @@
   when:
     - bootstrap_stable_packages is defined
   register: packagestableresult
+  become: true
   until: packagestableresult is succeeded
   notify:
     - gather facts
@@ -59,6 +61,7 @@
     - bootstrap_preview | bool
     - bootstrap_preview_packages is defined
   register: packagepreviewresult
+  become: true
   until: packagepreviewresult is succeeded
   notify:
     - gather facts
