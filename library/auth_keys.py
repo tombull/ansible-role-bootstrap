@@ -37,7 +37,7 @@ class AuthorisedKeys:
             working_file = os.path.abspath(os.path.expanduser(keys_file))
             if os.path.exists(working_file) and os.path.isfile(working_file):
 
-                with open(working_file, "r+") as open_file:
+                with open(working_file, "rb+") as open_file:
                     while True:
                         try:
                             fcntl.flock(open_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -47,7 +47,7 @@ class AuthorisedKeys:
                                 raise
                             else:
                                 time.sleep(0.1)
-                    file_lines = open_file.readlines()
+                    file_lines = list(open_file)
                     while file_lines[-1].isspace() or not file_lines[-1]:
                         del file_lines[-1]
 
