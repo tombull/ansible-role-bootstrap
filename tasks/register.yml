@@ -1,58 +1,73 @@
 ---
-- name: register package manager
+- name: Register package manager
   become: no
   check_mode: no
   block:
-    - name: register apk
+    - name: Register apk
       raw: apk --version
-      register: apk
+      register: bootstrap_apk
       changed_when: no
       failed_when: no
 
-    - name: register apt_get
+    - name: Register apt_get
       raw: apt-get --version
-      register: apt_get
+      register: bootstrap_apt_get
       changed_when: no
       failed_when: no
 
-    - name: register dnf
+    - name: Register dnf
       raw: dnf --version
-      register: dnf
+      register: bootstrap_dnf
       changed_when: no
       failed_when: no
 
-    - name: register emerge
+    - name: Register emerge
       raw: emerge --version
-      register: emerge
+      register: bootstrap_emerge
       changed_when: no
       failed_when: no
 
-    - name: register pacman
+    - name: Register pacman
       raw: pacman --version
-      register: pacman
+      register: bootstrap_pacman
       changed_when: no
       failed_when: no
 
-    - name: register pkg
+    - name: Register pkg
       raw: pkg --version
-      register: pkg
+      register: bootstrap_pkg
       changed_when: no
       failed_when: no
 
-    - name: register pkg_add
+    - name: Register pkg_add
       raw: pkg_info
-      register: pkg_add
+      register: bootstrap_pkg_add
       changed_when: no
       failed_when: no
 
-    - name: register yum
+    - name: Register yum
       raw: yum --version
-      register: yum
+      register: bootstrap_yum
       changed_when: no
       failed_when: no
 
-    - name: register zypper
+    - name: Register zypper
       raw: zypper --version
-      register: zypper
+      register: bootstrap_zypper
       changed_when: no
       failed_when: no
+
+    - name: Register no package manager
+      delegate_to: localhost
+      set_fact:
+        bootstrap_no_package_manager: true
+      when:
+        - bootstrap_apk.rc != 0
+        - bootstrap_apt_get.rc != 0
+        - bootstrap_dnf.rc != 0
+        - bootstrap_emerge.rc != 0
+        - bootstrap_pacman.rc != 0
+        - bootstrap_pkg.rc != 0
+        - bootstrap_pkg_add.rc != 0
+        - bootstrap_yum.rc != 0
+        - bootstrap_zypper.rc != 0

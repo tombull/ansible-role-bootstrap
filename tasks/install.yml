@@ -1,100 +1,100 @@
 ---
-- name: install using registered package manager
+- name: Install using registered package manager
   block:
-    - name: install software with apk
+    - name: Install software with apk
       raw: "apk update ; apk add {{ bootstrap_apk_packages }}"
       when:
-        - apk.rc == 0
-      register: apkresult
+        - bootstrap_apk.rc == 0
+      register: bootstrap_apkresult
       changed_when:
         - "'Installing' in apkresult.stdout"
-      until: apkresult is succeeded
+      until: bootstrap_apkresult is succeeded
       retries: "{{ bootstrap_retries }}"
       notify:
-        - add community repository for apk
+        - Add community repository for apk
 
-    - name: install software with apt-get
+    - name: Install software with apt-get
       raw: "apt-get update ; LANG=C apt-get -y install {{ bootstrap_apt_packages }}"
       when:
-        - apt_get.rc == 0
-        - zypper.rc != 0
-      register: apt_getresult
+        - bootstrap_apt_get.rc == 0
+        - bootstrap_zypper.rc != 0
+      register: bootstrap_apt_getresult
       changed_when:
         - "' 0 newly installed' not in apt_getresult.stdout"
-      until: apt_getresult is succeeded
+      until: bootstrap_apt_getresult is succeeded
       retries: "{{ bootstrap_retries }}"
 
-    - name: install software with dnf
+    - name: Install software with dnf
       raw: "LANG=C dnf -y install {{ bootstrap_dnf_packages }}"
       when:
-        - dnf.rc == 0
-      register: dnfresult
+        - bootstrap_dnf.rc == 0
+      register: bootstrap_dnfresult
       changed_when:
         - "'Nothing' not in dnfresult.stdout"
-      until: dnfresult is succeeded
+      until: bootstrap_dnfresult is succeeded
       retries: "{{ bootstrap_retries }}"
 
-    - name: install software with emerge
+    - name: Install software with emerge
       raw: "{{ bootstrap_emerge_command }}"
       when:
-        - emerge.rc == 0
-      register: emergeresult
+        - bootstrap_emerge.rc == 0
+      register: bootstrap_emergeresult
       changed_when:
         - "'changed' in emergeresult.stdout"
-      until: emergeresult is succeeded
+      until: bootstrap_emergeresult is succeeded
       retries: "{{ bootstrap_retries }}"
 
-    - name: install software with pacman
+    - name: Install software with pacman
       raw: "pacman -Sy ; pacman -T {{ bootstrap_pacman_packages }} || LANG=C pacman -S --noconfirm {{ bootstrap_pacman_packages }}"
       when:
-        - pacman.rc == 0
-      register: pacmanresult
+        - bootstrap_pacman.rc == 0
+      register: bootstrap_pacmanresult
       changed_when:
         - "' installing python' in pacmanresult.stdout"
-      until: pacmanresult is succeeded
+      until: bootstrap_pacmanresult is succeeded
       retries: "{{ bootstrap_retries }}"
 
-    - name: install software with pkg
+    - name: Install software with pkg
       raw: >
         ASSUME_ALWAYS_YES=YES LANG=C
         pkg install {{ bootstrap_pkg_packages }}
         ; ln -s /usr/local/bin/python /usr/bin/python
         || exit 0
       when:
-        - pkg.rc == 0
-      register: pkgresult
+        - bootstrap_pkg.rc == 0
+      register: bootstrap_pkgresult
       changed_when:
         - "'Extracting python' in pkgresult.stdout"
-      until: pkgresult is succeeded
+      until: bootstrap_pkgresult is succeeded
       retries: "{{ bootstrap_retries }}"
 
-    - name: install software with pkg_add
+    - name: Install software with pkg_add
       raw: LANG=C pkg_add -Iz {{ bootstrap_pkg_add_packages }}
       when:
-        - pkg_add.rc == 0
-      register: pkg_add_getresult
+        - bootstrap_pkg_add.rc == 0
+      register: bootstrap_pkg_add_getresult
       changed_when:
         - "': ok' in pkg_add_getresult.stdout"
-      until: pkg_add_getresult is succeeded
+      until: bootstrap_pkg_add_getresult is succeeded
       retries: "{{ bootstrap_retries }}"
 
-    - name: install software with yum
+    - name: Install software with yum
       raw: "LANG=C yum -y install {{ bootstrap_yum_packages }}"
       when:
-        - yum.rc == 0
-      register: yumresult
+        - bootstrap_yum.rc == 0
+      register: bootstrap_yumresult
       changed_when:
         - "'Nothing' not in yumresult.stdout"
-      until: yumresult is succeeded
+      until: bootstrap_yumresult is succeeded
       retries: "{{ bootstrap_retries }}"
 
-    - name: install software with zypper
+    - name: Install software with zypper
       raw: "LANG=C zypper -n install {{ bootstrap_zypper_packages }}"
       when:
-        - zypper.rc == 0
-      register: zypperresult
+        - bootstrap_zypper.rc == 0
+      register: bootstrap_zypperresult
       changed_when:
         - "'Nothing' not in zypperresult.stdout"
       failed_when: no
-      until: zypperresult is succeeded
+      until: bootstrap_zypperresult is succeeded
       retries: "{{ bootstrap_retries }}"

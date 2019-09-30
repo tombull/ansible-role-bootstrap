@@ -3,7 +3,7 @@
 
 - include: check_login.yml
 
-- name: wait for the host
+- name: Wait for the host to be available by SSH
   wait_for:
     port: "{{ ansible_port | default('22') }}"
     host: "{{ ansible_host | default(inventory_hostname) }}"
@@ -14,26 +14,31 @@
     - ansible_connection != "docker"
     - bootstrap_wait_for_host | bool
 
-- name: test connection, otherwise register package manager
+- name: Test connection to host including python, otherwise register package manager
   block:
-    - name: test connection (allowed to fail)
+    - name: Test connection to host including python (allowed to fail)
       wait_for_connection:
         timeout: "{{ bootstrap_timeout }}"
       register: bootstrap_connect
       changed_when: no
 
   rescue:
-    - name: register package manager
+    - name: Register package manager
       include_tasks: register.yml
 
-    - name: install using registered package manager
+    - name: Install packages using registered package manager
       include_tasks: install.yml
 
-- name: gather facts
+    - name: Install python if there is no registered package manager
+      include_tasks: install_no_package_manager.yml
+      when: bootstrap_no_package_manager | default(false)
+
+- name: Gather facts
   setup:
+    gather_subset: all
   become: no
 
-- name: install bootstrap packages
+- name: Install bootstrap packages
   package:
     name: "{{ bootstrap_packages }}"
     state: present
@@ -41,7 +46,7 @@
   become: true
   until: packageresult is succeeded
 
-- name: install software to support stable modules
+- name: Install software to support stable modules
   package:
     name: "{{ bootstrap_stable_packages }}"
     state: present
@@ -51,9 +56,9 @@
   become: true
   until: packagestableresult is succeeded
   notify:
-    - gather facts
+    - Gather facts
 
-- name: install software to support preview modules
+- name: Install software to support preview modules
   package:
     name: "{{ bootstrap_preview_packages }}"
     state: present
@@ -64,7 +69,7 @@
   become: true
   until: packagepreviewresult is succeeded
   notify:
-    - gather facts
+    - Gather facts
 
-- name: flush handlers
+- name: Flush handlers
   meta: flush_handlers

@@ -17,3 +17,12 @@ bootstrap_timeout: 15
 
 # The number of retries during installation
 bootstrap_retries: 5
+
+# The pypy version of python to use
+bootstrap_pypy_python_version: 2.7
+
+# The pypy version to use
+bootstrap_pypy_version: 7.1.1
+
+# Where to install python if ansible_python_interpreter is not set
+bootstrap_python_installation_location: /run/python/python
