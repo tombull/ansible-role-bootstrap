@@ -34,7 +34,7 @@
   become: true
 
 - name: Symlink libncurses in /lib64 as libtinfo.so.5
-  raw: "mkdir -p {{ ansible_python_interpreter | default(bootstrap_python_installation_location) | dirname }}/lib && ln -snf $(ls /lib64/* | grep \"libncurses.so.[0-9]\+.\?[0-9]\?\" | tail -1) {{ ansible_python_interpreter | default(bootstrap_python_installation_location) | dirname }}/lib/libtinfo.so.5"
+  raw: "mkdir -p {{ ansible_python_interpreter | default(bootstrap_python_installation_location) | dirname }}/lib && ln -snf $(ls /lib64/libncurses.so.* | tail -1) {{ ansible_python_interpreter | default(bootstrap_python_installation_location) | dirname }}/lib/libtinfo.so.5"
   when: bootstrap_libtinfo_symlink_exists | failed
   become: true
 
