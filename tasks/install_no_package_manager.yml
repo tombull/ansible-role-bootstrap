@@ -31,18 +31,21 @@
 - name: Extract PyPy
   raw: "mkdir -p {{ ansible_python_interpreter | default(bootstrap_python_installation_location) | dirname }} && tar xf /tmp/pypy{{ bootstrap_pypy_python_version }}-{{ bootstrap_pypy_version }}.tar.bz2 -C {{ ansible_python_interpreter | default(bootstrap_python_installation_location) | dirname }}/ --strip-components=1"
   when: bootstrap_pypy_dir_exists | failed
+  become: true
 
 - name: Symlink libncurses.so.5.9 as libtinfo.so.5
   raw: "mkdir -p {{ ansible_python_interpreter | default(bootstrap_python_installation_location) | dirname }}/lib && ln -s /lib64/libncurses.so.5.9 {{ ansible_python_interpreter | default(bootstrap_python_installation_location) | dirname }}/lib/libtinfo.so.5"
   when: bootstrap_libtinfo_symlink_exists | failed
+  become: true
 
 - name: Install python interpreter
   script: "install_python_binary.sh {{ ansible_python_interpreter | default(bootstrap_python_installation_location) }}"
   when: bootstrap_python_interpreter_exists|failed
+  become: true
 
 - name: Install pip
   raw: "{{ ansible_python_interpreter | default(bootstrap_python_installation_location) }}  -m ensurepip"
   when: bootstrap_pip_installed|failed
-
-- name: Install docker-py
-  raw: "{{ ansible_python_interpreter | default(bootstrap_python_installation_location) }}  -m pip install docker-py"
+  # become: true
+# - name: Install docker-py
+#   raw: "{{ ansible_python_interpreter | default(bootstrap_python_installation_location) }}  -m pip install docker-py"
