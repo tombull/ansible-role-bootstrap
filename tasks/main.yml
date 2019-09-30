@@ -38,10 +38,6 @@
     gather_subset: all
   become: no
 
-- name: Show ansible_distribution
-  debug:
-    var: ansible_distribution
-
 - name: Install packages
   block:
     - name: Install bootstrap packages
@@ -76,7 +72,7 @@
       until: packagepreviewresult is succeeded
       notify:
         - Gather facts
-  when: ansible_distribution != 'CoreOS'
+  when: ansible_distribution | lower != 'coreos'
 
 - name: Flush handlers
   meta: flush_handlers
