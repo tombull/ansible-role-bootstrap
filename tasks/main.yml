@@ -38,38 +38,41 @@
     gather_subset: all
   become: no
 
-- name: Install bootstrap packages
-  package:
-    name: "{{ bootstrap_packages }}"
-    state: present
-  register: packageresult
-  become: true
-  until: packageresult is succeeded
+- name: Install packages
+  block:
+    - name: Install bootstrap packages
+      package:
+        name: "{{ bootstrap_packages }}"
+        state: present
+      register: packageresult
+      become: true
+      until: packageresult is succeeded
 
-- name: Install software to support stable modules
-  package:
-    name: "{{ bootstrap_stable_packages }}"
-    state: present
-  when:
-    - bootstrap_stable_packages is defined
-  register: packagestableresult
-  become: true
-  until: packagestableresult is succeeded
-  notify:
-    - Gather facts
+    - name: Install software to support stable modules
+      package:
+        name: "{{ bootstrap_stable_packages }}"
+        state: present
+      when:
+        - bootstrap_stable_packages is defined
+      register: packagestableresult
+      become: true
+      until: packagestableresult is succeeded
+      notify:
+        - Gather facts
 
-- name: Install software to support preview modules
-  package:
-    name: "{{ bootstrap_preview_packages }}"
-    state: present
-  when:
-    - bootstrap_preview | bool
-    - bootstrap_preview_packages is defined
-  register: packagepreviewresult
-  become: true
-  until: packagepreviewresult is succeeded
-  notify:
-    - Gather facts
+    - name: Install software to support preview modules
+      package:
+        name: "{{ bootstrap_preview_packages }}"
+        state: present
+      when:
+        - bootstrap_preview | bool
+        - bootstrap_preview_packages is defined
+      register: packagepreviewresult
+      become: true
+      until: packagepreviewresult is succeeded
+      notify:
+        - Gather facts
+  when: ansible_distribution != 'CoreOS'
 
 - name: Flush handlers
   meta: flush_handlers
