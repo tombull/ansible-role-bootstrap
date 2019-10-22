@@ -40,9 +40,10 @@
 
 - name: Install python interpreter
   script: 'install_python_binary.sh {{ ansible_python_interpreter | default(bootstrap_python_installation_location) }}'
-  when: bootstrap_python_interpreter_exists|failed
+  when: bootstrap_python_interpreter_exists | failed
   become: yes
 
 - name: Install pip
   raw: '{{ ansible_python_interpreter | default(bootstrap_python_installation_location) }}  -m ensurepip'
-  when: bootstrap_pip_installed|failed
+  when: bootstrap_python_interpreter_exists | failed or  bootstrap_pip_installed | failed
+  become: yes
