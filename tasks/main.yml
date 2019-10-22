@@ -46,8 +46,7 @@
   register: bootstrap_package_manager_update_cache
   until: bootstrap_package_manager_update_cache is succeeded
   retries: 3
-  when:
-    - ansible_pkg_mgr != 'unknown'
+  when: ansible_pkg_mgr != 'unknown'
 
 - name: Ensure all bootstrap_packages are installed
   package:
