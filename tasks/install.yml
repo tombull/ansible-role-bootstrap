@@ -1,100 +1,69 @@
 ---
-- name: Install using registered package manager
+- name: Install bootstrap packages manually
   block:
-    - name: Install software with apk
-      raw: "apk update ; apk add {{ bootstrap_apk_packages }}"
+    - name: Install software for Alpine
+      raw: 'LANG=C apk update ; apk add {{ bootstrap_packages }}'
       when:
-        - bootstrap_apk.rc == 0
-      register: bootstrap_apkresult
+        - bootstrap_distribution == 'alpine'
+        - bootstrap_packages is defined
+      register: alpineresult
       changed_when:
-        - "'Installing' in apkresult.stdout"
-      until: bootstrap_apkresult is succeeded
-      retries: "{{ bootstrap_retries }}"
-      notify:
-        - Add community repository for apk
+        - "'Installing' in alpineresult.stdout"
+      until: alpineresult is succeeded
+      retries: '{{ bootstrap_retries }}'
 
-    - name: Install software with apt-get
-      raw: "apt-get update ; LANG=C apt-get -y install {{ bootstrap_apt_packages }}"
+    - name: Install software for Archlinux
+      raw: 'LANG=C pacman -Sy --noconfirm {{ bootstrap_packages }}'
       when:
-        - bootstrap_apt_get.rc == 0
-        - bootstrap_zypper.rc != 0
-      register: bootstrap_apt_getresult
+        - bootstrap_distribution == 'arch'
+        - bootstrap_packages is defined
+      register: archlinuxresult
       changed_when:
-        - "' 0 newly installed' not in apt_getresult.stdout"
-      until: bootstrap_apt_getresult is succeeded
-      retries: "{{ bootstrap_retries }}"
-
-    - name: Install software with dnf
-      raw: "LANG=C dnf -y install {{ bootstrap_dnf_packages }}"
-      when:
-        - bootstrap_dnf.rc == 0
-      register: bootstrap_dnfresult
-      changed_when:
-        - "'Nothing' not in dnfresult.stdout"
-      until: bootstrap_dnfresult is succeeded
-      retries: "{{ bootstrap_retries }}"
-
-    - name: Install software with emerge
-      raw: "{{ bootstrap_emerge_command }}"
-      when:
-        - bootstrap_emerge.rc == 0
-      register: bootstrap_emergeresult
-      changed_when:
-        - "'changed' in emergeresult.stdout"
-      until: bootstrap_emergeresult is succeeded
-      retries: "{{ bootstrap_retries }}"
-
-    - name: Install software with pacman
-      raw: "pacman -Sy ; pacman -T {{ bootstrap_pacman_packages }} || LANG=C pacman -S --noconfirm {{ bootstrap_pacman_packages }}"
-      when:
-        - bootstrap_pacman.rc == 0
-      register: bootstrap_pacmanresult
-      changed_when:
-        - "' installing python' in pacmanresult.stdout"
-      until: bootstrap_pacmanresult is succeeded
-      retries: "{{ bootstrap_retries }}"
-
-    - name: Install software with pkg
-      raw: >
-        ASSUME_ALWAYS_YES=YES LANG=C
-        pkg install {{ bootstrap_pkg_packages }}
-        ; ln -s /usr/local/bin/python /usr/bin/python
-        || exit 0
-      when:
-        - bootstrap_pkg.rc == 0
-      register: bootstrap_pkgresult
-      changed_when:
-        - "'Extracting python' in pkgresult.stdout"
-      until: bootstrap_pkgresult is succeeded
-      retries: "{{ bootstrap_retries }}"
-
-    - name: Install software with pkg_add
-      raw: LANG=C pkg_add -Iz {{ bootstrap_pkg_add_packages }}
-      when:
-        - bootstrap_pkg_add.rc == 0
-      register: bootstrap_pkg_add_getresult
-      changed_when:
-        - "': ok' in pkg_add_getresult.stdout"
-      until: bootstrap_pkg_add_getresult is succeeded
-      retries: "{{ bootstrap_retries }}"
-
-    - name: Install software with yum
-      raw: "LANG=C yum -y install {{ bootstrap_yum_packages }}"
-      when:
-        - bootstrap_yum.rc == 0
-      register: bootstrap_yumresult
-      changed_when:
-        - "'Nothing' not in yumresult.stdout"
-      until: bootstrap_yumresult is succeeded
-      retries: "{{ bootstrap_retries }}"
-
-    - name: Install software with zypper
-      raw: "LANG=C zypper -n install {{ bootstrap_zypper_packages }}"
-      when:
-        - bootstrap_zypper.rc == 0
-      register: bootstrap_zypperresult
-      changed_when:
-        - "'Nothing' not in zypperresult.stdout"
+        - "' installing python' in archlinuxresult.stdout"
       failed_when: no
-      until: bootstrap_zypperresult is succeeded
-      retries: "{{ bootstrap_retries }}"
+      until: archlinuxresult is succeeded
+      retries: '{{ bootstrap_retries }}'
+
+    - name: Install software for Debian or Ubuntu
+      raw: 'LANG=C apt-get update && apt-get install -y {{ bootstrap_packages }}'
+      when:
+        - bootstrap_distribution == 'debian' or bootstrap_distribution == 'ubuntu'
+        - bootstrap_packages is defined
+      register: debianresult
+      changed_when:
+        - "' 0 newly installed' not in debianresult.stdout"
+      until: debianresult is succeeded
+      retries: '{{ bootstrap_retries }}'
+
+    - name: Install software for Gentoo
+      raw: 'LANG=C {{ bootstrap_emerge_command }}'
+      when:
+        - bootstrap_distribution == 'gentoo'
+        - bootstrap_packages is defined
+      register: gentooresult
+      changed_when:
+        - "'changed' in gentooresult.stdout"
+      until: gentooresult is succeeded
+      retries: '{{ bootstrap_retries }}'
+
+    - name: Install software for openSUSE
+      raw: 'LANG=C zypper -n install {{ bootstrap_packages }}'
+      when:
+        - bootstrap_distribution == 'opensuse'
+        - bootstrap_packages is defined
+      register: opensuseresult
+      changed_when:
+        - "'Nothing' not in opensuseresult.stdout"
+      until: opensuseresult is succeeded
+      retries: '{{ bootstrap_retries }}'
+
+    - name: Install software for Red Hat
+      raw: 'LANG=C yum -y install {{ bootstrap_packages }}'
+      when:
+        - bootstrap_distribution == 'rhel' or bootstrap_distribution == 'centos' or bootstrap_distribution == 'fedora'
+        - bootstrap_packages is defined
+      register: redhatresult
+      changed_when:
+        - "'Nothing' not in redhatresult.stdout"
+      until: redhatresult is succeeded
+      retries: '{{ bootstrap_retries }}'

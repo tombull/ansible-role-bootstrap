@@ -6,7 +6,7 @@
 - name: Wait for the host to be available by SSH
   wait_for:
     port: "{{ ansible_port | default('22') }}"
-    host: "{{ ansible_host | default(inventory_hostname) }}"
+    host: '{{ ansible_host | default(inventory_hostname) }}'
   delegate_to: localhost
   become: no
   when:
@@ -18,7 +18,7 @@
   block:
     - name: Test connection to host including python (allowed to fail)
       wait_for_connection:
-        timeout: "{{ bootstrap_timeout }}"
+        timeout: '{{ bootstrap_timeout }}'
       register: bootstrap_connect
       changed_when: no
 
@@ -28,51 +28,23 @@
 
     - name: Install packages using registered package manager
       include_tasks: install.yml
+      when: bootstrap_has_package_manager
 
     - name: Install python if there is no registered package manager
       include_tasks: install_no_package_manager.yml
-      when: bootstrap_no_package_manager | default(false)
+      when: not bootstrap_has_package_manager
 
 - name: Gather facts
   setup:
     gather_subset: all
   become: no
 
-- name: Install packages
-  block:
-    - name: Install bootstrap packages
-      package:
-        name: "{{ bootstrap_packages }}"
-        state: present
-      register: packageresult
-      become: true
-      until: packageresult is succeeded
-
-    - name: Install software to support stable modules
-      package:
-        name: "{{ bootstrap_stable_packages }}"
-        state: present
-      when:
-        - bootstrap_stable_packages is defined
-      register: packagestableresult
-      become: true
-      until: packagestableresult is succeeded
-      notify:
-        - Gather facts
-
-    - name: Install software to support preview modules
-      package:
-        name: "{{ bootstrap_preview_packages }}"
-        state: present
-      when:
-        - bootstrap_preview | bool
-        - bootstrap_preview_packages is defined
-      register: packagepreviewresult
-      become: true
-      until: packagepreviewresult is succeeded
-      notify:
-        - Gather facts
-  when: ansible_distribution | lower != 'coreos'
-
-- name: Flush handlers
-  meta: flush_handlers
+- name: Ensure all bootstrap_packages are installed
+  package:
+    name: '{{ item }}'
+    state: present
+  with_items: '{{ bootstrap_facts_packages.split() }}'
+  register: bootstrap_install_bootstrap_facts_packages
+  until: bootstrap_install_bootstrap_facts_packages is succeeded
+  retries: 3
+  when: bootstrap_has_package_manager

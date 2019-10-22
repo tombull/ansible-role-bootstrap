@@ -1,73 +1,17 @@
 ---
-- name: Register package manager
+- name: Register distribution
   become: no
   check_mode: no
   block:
-    - name: Register apk
-      raw: apk --version
-      register: bootstrap_apk
+    - name: Register /etc/os-release file contents
+      raw: test -f /etc/os-release && cat /etc/os-release
+      register: os_release
       changed_when: no
       failed_when: no
 
-    - name: Register apt_get
-      raw: apt-get --version
-      register: bootstrap_apt_get
-      changed_when: no
-      failed_when: no
-
-    - name: Register dnf
-      raw: dnf --version
-      register: bootstrap_dnf
-      changed_when: no
-      failed_when: no
-
-    - name: Register emerge
-      raw: emerge --version
-      register: bootstrap_emerge
-      changed_when: no
-      failed_when: no
-
-    - name: Register pacman
-      raw: pacman --version
-      register: bootstrap_pacman
-      changed_when: no
-      failed_when: no
-
-    - name: Register pkg
-      raw: pkg --version
-      register: bootstrap_pkg
-      changed_when: no
-      failed_when: no
-
-    - name: Register pkg_add
-      raw: pkg_info
-      register: bootstrap_pkg_add
-      changed_when: no
-      failed_when: no
-
-    - name: Register yum
-      raw: yum --version
-      register: bootstrap_yum
-      changed_when: no
-      failed_when: no
-
-    - name: Register zypper
-      raw: zypper --version
-      register: bootstrap_zypper
-      changed_when: no
-      failed_when: no
-
-    - name: Register no package manager
-      delegate_to: localhost
+    - name: Set variables for distribution
       set_fact:
-        bootstrap_no_package_manager: true
+        bootstrap_distribution: "{{ os_release.stdout | regex_search('^\\s*ID\\s*=\\s*\\\"?([a-z0-9\\._\\-]+)\\\"?\\s*$', multiline=True, ignorecase=False) | regex_replace('^\\s*ID\\s*=\\s*\\\"?([a-z0-9\\._\\-]+)\\\"?\\s*$', '\\1') }}"
+        bootstrap_distribution_major_version: "{{ os_release.stdout | regex_search('^\\s*VERSION_ID\\s*=\\s*\\\"?([a-z0-9\\._\\-]+)\\\"?\\s*$', multiline=True, ignorecase=False) | regex_replace('^\\s*VERSION_ID\\s*=\\s*\\\"?([a-z0-9\\._\\-]+)\\\"?\\s*$', '\\1') | regex_search('^\\d+', multiline=False, ignorecase=False) }}"
       when:
-        - bootstrap_apk.rc != 0
-        - bootstrap_apt_get.rc != 0
-        - bootstrap_dnf.rc != 0
-        - bootstrap_emerge.rc != 0
-        - bootstrap_pacman.rc != 0
-        - bootstrap_pkg.rc != 0
-        - bootstrap_pkg_add.rc != 0
-        - bootstrap_yum.rc != 0
-        - bootstrap_zypper.rc != 0
+        - os_release.rc == 0
