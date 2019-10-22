@@ -47,4 +47,5 @@
   register: bootstrap_install_bootstrap_facts_packages
   until: bootstrap_install_bootstrap_facts_packages is succeeded
   retries: 3
+  become: true
   when: bootstrap_facts_has_package_manager
