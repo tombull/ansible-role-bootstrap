@@ -45,5 +45,5 @@
 
 - name: Install pip
   raw: '{{ ansible_python_interpreter | default(bootstrap_python_installation_location) }}  -m ensurepip'
-  when: bootstrap_python_interpreter_exists | failed or  bootstrap_pip_installed | failed
+  when: bootstrap_python_interpreter_exists | failed or bootstrap_pip_installed | failed
   become: yes
