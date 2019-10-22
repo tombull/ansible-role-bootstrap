@@ -31,5 +31,8 @@ bootstrap_facts_packages: "{{ _bootstrap_packages[ansible_distribution | lower ~
 # Does the distribution have a package manager?
 bootstrap_has_package_manager: "{{ bootstrap_distribution != 'coreos' }}"
 
+# Does the distribution have a package manager (based on gathered facts)?
+bootstrap_facts_has_package_manager: "{{ ansible_distribution | lower != 'coreos' }}"
+
 # Save this hideously long command here.
 bootstrap_emerge_command: equery l {{ bootstrap_packages }} || (emaint -a sync ; emerge -qkv {{ bootstrap_packages }} ; echo "changed")
