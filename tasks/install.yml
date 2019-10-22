@@ -67,3 +67,4 @@
         - "'Nothing' not in redhatresult.stdout"
       until: redhatresult is succeeded
       retries: '{{ bootstrap_retries }}'
+  become: yes
