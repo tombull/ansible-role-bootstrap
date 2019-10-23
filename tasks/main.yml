@@ -1,12 +1,8 @@
 ---
-- include: manage_known_hosts.yml
-
-- include: check_login.yml
-
 - name: Wait for the host to be available by SSH
   wait_for:
     port: "{{ ansible_port | default('22') }}"
-    host: '{{ ansible_host | default(inventory_hostname) }}'
+    host: "{{ ansible_host | default(inventory_hostname) }}"
   delegate_to: localhost
   become: no
   when:
@@ -18,8 +14,7 @@
   block:
     - name: Test connection to host including python (allowed to fail)
       wait_for_connection:
-        timeout: '{{ bootstrap_timeout }}'
-      register: bootstrap_connect
+        timeout: "{{ bootstrap_timeout }}"
       changed_when: no
 
   rescue:
@@ -50,9 +45,9 @@
 
 - name: Ensure all bootstrap_packages are installed
   package:
-    name: '{{ item }}'
+    name: "{{ item }}"
     state: present
-  with_items: '{{ bootstrap_facts_packages.split() }}'
+  with_items: "{{ bootstrap_facts_packages.split() }}"
   register: bootstrap_install_bootstrap_facts_packages
   until: bootstrap_install_bootstrap_facts_packages is succeeded
   retries: 3
