@@ -8,6 +8,7 @@
       register: os_release
       changed_when: no
       failed_when: no
+      become: yes
 
     - name: Set variables for distribution
       set_fact:

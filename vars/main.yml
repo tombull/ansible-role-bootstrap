@@ -6,6 +6,7 @@
 _bootstrap_packages:
   alpine: python3 sudo
   arch: python3 sudo
+  archlinux: python3 sudo rng-tools
   centos: python3 sudo
   gentoo: python sudo gentoolkit
   fedora: python3 sudo
